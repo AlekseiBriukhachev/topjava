@@ -7,6 +7,7 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.Util;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
@@ -59,8 +60,8 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public List<Meal> getBetweenHalfOpen(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return getAllFiltered(userId, meal -> Util.isBetweenHalfOpen(meal.getDateTime(), startDate, endDate));
+    public List<Meal> getBetweenHalfOpen(LocalDate startDate, LocalDate endDate, int userId) {
+        return getAllFiltered(userId, meal -> Util.isBetweenHalfOpen(meal.getDate(), startDate, endDate));
     }
 
     private List<Meal> getAllFiltered(int userId, Predicate<Meal> filter) {
