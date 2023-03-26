@@ -1,23 +1,23 @@
-package ru.javawebinar.topjava.model;
+package ru.javawebinar.topjava.dto;
+
+import ru.javawebinar.topjava.model.AbstractBaseEntity;
 
 import java.time.LocalDateTime;
 
-public class MealTo {
-    private final Integer id;
-
+public class MealTo extends AbstractBaseEntity {
     private final LocalDateTime dateTime;
 
     private final String description;
 
     private final int calories;
 
-//    private final AtomicBoolean excess;      // filteredByAtomic (or any ref type, e.g. boolean[1])
+    //    private final AtomicBoolean excess;      // filteredByAtomic (or any ref type, e.g. boolean[1])
 //    private final Boolean excess;            // filteredByReflection
 //    private final Supplier<Boolean> excess;  // filteredByClosure
     private boolean excess;
 
     public MealTo(Integer id, LocalDateTime dateTime, String description, int calories, boolean excess) {
-        this.id = id;
+        super(id);
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
@@ -32,10 +32,6 @@ public class MealTo {
     // for filteredBySetterRecursion
     public void setExcess(boolean excess) {
         this.excess = excess;
-    }
-
-    public Integer getId() {
-        return id;
     }
 
     public LocalDateTime getDateTime() {
