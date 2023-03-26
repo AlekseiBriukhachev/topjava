@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
-import static ru.javawebinar.topjava.util.TimeUtil.isBetweenHalfOpen;
+import static ru.javawebinar.topjava.util.DateTimeUtil.isBetweenHalfOpen;
 
 public class MealsUtil {
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
@@ -38,7 +38,7 @@ public class MealsUtil {
     }
 
     public static List<MealTo> getFilteredTos(Collection<Meal> meals, int caloriesPerDay, LocalTime startTime, LocalTime endTime) {
-        return filterByPredicate(meals, caloriesPerDay, meal -> DateTimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime));
+        return filterByPredicate(meals, caloriesPerDay, meal -> isBetweenHalfOpen(meal.getTime(), startTime, endTime));
     }
 
     private static List<MealTo> filterByPredicate(Collection<Meal> meals, int caloriesPerDay, Predicate<Meal> filter) {
@@ -110,7 +110,7 @@ public class MealsUtil {
         meals.forEach(meal -> {
             LocalDate localDate = meal.getDate();
             boolean excess = caloriesSumByDate.merge(localDate, meal.getCalories(), Integer::sum) > caloriesPerDay;
-            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+            if (DateTimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                 MealTo mealTo = createTo(meal, excess);
                 mealsTo.add(mealTo);
                 if (!excess) {
@@ -277,7 +277,7 @@ public class MealsUtil {
         Predicate<Boolean> predicate = b -> true;
         for (Meal meal : meals) {
             caloriesSumByDate.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), Integer::sum);
-            if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
+            if (DateTimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
                 predicate = predicate.and(b -> mealsTo.add(createTo(meal, caloriesSumByDate.get(meal.getDateTime().toLocalDate()) > caloriesPerDay)));
             }
         }
@@ -293,7 +293,7 @@ public class MealsUtil {
 
         for (Meal meal : meals) {
             caloriesPerDays.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+            if (DateTimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                 consumer = consumer.andThen(dummy -> result.add(createTo(meal, caloriesPerDays.get(meal.getDateTime().toLocalDate()) > caloriesPerDay)));
             }
         }
