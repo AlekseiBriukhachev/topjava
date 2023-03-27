@@ -15,11 +15,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.function.Predicate;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
-import static ru.javawebinar.topjava.util.TimeUtil.isBetweenHalfOpen;
 
 public class MealsUtil {
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
@@ -45,7 +43,6 @@ public class MealsUtil {
         Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
                 .collect(
                         Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories))
-                        //                      Collectors.toMap(Meal::getDate, Meal::getCalories, Integer::sum)
                 );
 
         return meals.stream()
@@ -61,7 +58,7 @@ public class MealsUtil {
 
         final List<MealTo> mealsTo = new ArrayList<>();
         meals.forEach(meal -> {
-            if (isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+            if (Util.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                 mealsTo.add(createTo(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay));
             }
         });
@@ -81,7 +78,7 @@ public class MealsUtil {
         Meal meal = meals.pop();
         dailyCaloriesMap.merge(meal.getDate(), meal.getCalories(), Integer::sum);
         filterWithRecursion(meals, startTime, endTime, caloriesPerDay, dailyCaloriesMap, result);
-        if (isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+        if (Util.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
             result.add(createTo(meal, dailyCaloriesMap.get(meal.getDate()) > caloriesPerDay));
         }
     }
@@ -110,7 +107,7 @@ public class MealsUtil {
         meals.forEach(meal -> {
             LocalDate localDate = meal.getDate();
             boolean excess = caloriesSumByDate.merge(localDate, meal.getCalories(), Integer::sum) > caloriesPerDay;
-            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+            if (Util.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                 MealTo mealTo = createTo(meal, excess);
                 mealsTo.add(mealTo);
                 if (!excess) {
@@ -140,7 +137,7 @@ public class MealsUtil {
                 while (iterator.hasNext()) {
                     Meal meal = iterator.next();
                     caloriesSumByDate.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-                    if (isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+                    if (Util.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                         run();
                         mealsTo.add(createTo(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay));
                     }
@@ -149,59 +146,6 @@ public class MealsUtil {
         }.run();
         return mealsTo;
     }
-    
-    /*
-        private static List<MealTo> filteredByAtomic(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-            Map<LocalDate, Integer> caloriesSumByDate = new HashMap<>();
-            Map<LocalDate, AtomicBoolean> exceededMap = new HashMap<>();
-
-            List<MealTo> mealsTo = new ArrayList<>();
-            meals.forEach(meal -> {
-                AtomicBoolean wrapBoolean = exceededMap.computeIfAbsent(meal.getDate(), date -> new AtomicBoolean());
-                Integer dailyCalories = caloriesSumByDate.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-                if (dailyCalories > caloriesPerDay) {
-                    wrapBoolean.set(true);
-                }
-                if (isBetween(meal.getTime(), startTime, endTime)) {
-                  mealsTo.add(createTo(meal, wrapBoolean));  // also change createTo and MealTo.excess
-                }
-            });
-            return mealsTo;
-        }
-
-        private static List<MealTo> filteredByReflection(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) throws NoSuchFieldException, IllegalAccessException {
-            Map<LocalDate, Integer> caloriesSumByDate = new HashMap<>();
-            Map<LocalDate, Boolean> exceededMap = new HashMap<>();
-            Field field = Boolean.class.getDeclaredField("value");
-            field.setAccessible(true);
-
-            List<MealTo> mealsTo = new ArrayList<>();
-            for (Meal meal : meals) {
-                Boolean mutableBoolean = exceededMap.computeIfAbsent(meal.getDate(), date -> new Boolean(false));
-                Integer dailyCalories = caloriesSumByDate.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-                if (dailyCalories > caloriesPerDay) {
-                    field.setBoolean(mutableBoolean, true);
-                }
-                if (isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
-                    mealsTo.add(createTo(meal, mutableBoolean));  // also change createTo and MealTo.excess
-                }
-            }
-            return mealsTo;
-        }
-
-        private static List<MealTo> filteredByClosure(List<Meal> mealList, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-            final Map<LocalDate, Integer> caloriesSumByDate = new HashMap<>();
-            List<MealTo> mealsTo = new ArrayList<>();
-            mealList.forEach(meal -> {
-                        caloriesSumByDate.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-                        if (isBetween(meal.getTime(), startTime, endTime)) {
-                            mealsTo.add(createTo(meal, () -> (caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))); // also change createTo and MealTo.excess
-                        }
-                    }
-            );
-            return mealsTo;
-        }
-    */
 
     private static List<MealTo> filteredByExecutor(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) throws InterruptedException {
         Map<LocalDate, Integer> caloriesSumByDate = new HashMap<>();
@@ -210,7 +154,7 @@ public class MealsUtil {
 
         meals.forEach(meal -> {
             caloriesSumByDate.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-            if (isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+            if (Util.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                 tasks.add(() -> {
                     mealsTo.add(createTo(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay));
                     return null;
@@ -231,7 +175,7 @@ public class MealsUtil {
         lock.lock();
         for (Meal meal : meals) {
             caloriesSumByDate.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), Integer::sum);
-            if (isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime))
+            if (Util.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime))
                 executor.submit(() -> {
                     lock.lock();
                     mealsTo.add(createTo(meal, caloriesSumByDate.get(meal.getDateTime().toLocalDate()) > caloriesPerDay));
@@ -251,7 +195,7 @@ public class MealsUtil {
         CountDownLatch latchTasks = new CountDownLatch(meals.size());
         for (Meal meal : meals) {
             caloriesSumByDate.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), Integer::sum);
-            if (isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
+            if (Util.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
                 new Thread(() -> {
                     try {
                         latchCycles.await();
@@ -277,7 +221,7 @@ public class MealsUtil {
         Predicate<Boolean> predicate = b -> true;
         for (Meal meal : meals) {
             caloriesSumByDate.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), Integer::sum);
-            if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
+            if (Util.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
                 predicate = predicate.and(b -> mealsTo.add(createTo(meal, caloriesSumByDate.get(meal.getDateTime().toLocalDate()) > caloriesPerDay)));
             }
         }
@@ -293,7 +237,7 @@ public class MealsUtil {
 
         for (Meal meal : meals) {
             caloriesPerDays.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+            if (Util.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                 consumer = consumer.andThen(dummy -> result.add(createTo(meal, caloriesPerDays.get(meal.getDateTime().toLocalDate()) > caloriesPerDay)));
             }
         }
@@ -309,7 +253,7 @@ public class MealsUtil {
                 .flatMap(dayMeals -> {
                     boolean excess = dayMeals.stream().mapToInt(Meal::getCalories).sum() > caloriesPerDay;
                     return dayMeals.stream().filter(meal ->
-                                    isBetweenHalfOpen(meal.getTime(), startTime, endTime))
+                                    Util.isBetweenHalfOpen(meal.getTime(), startTime, endTime))
                             .map(meal -> createTo(meal, excess));
                 }).collect(toList());
     }
@@ -321,7 +265,7 @@ public class MealsUtil {
 
             private void accumulate(Meal meal) {
                 dailySumOfCalories += meal.getCalories();
-                if (isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+                if (Util.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                     dailyMeals.add(meal);
                 }
             }
