@@ -85,6 +85,13 @@
             <version>${spring.version}</version>
         </dependency>
 
+        <!--DataBase-->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+
         <!--Web-->
         <dependency>
             <groupId>javax.servlet</groupId>
