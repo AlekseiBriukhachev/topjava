@@ -34,8 +34,34 @@ public class MealTo {
         this.excess = excess;
     }
 
+//    for filteredByClosure
+//    public Boolean getExcess() {
+//        return excess.get();
+//    }
+
+    // for filteredBySetterRecursion
+    public void setExcess(boolean excess) {
+        this.excess = excess;
+    }
+
     public Integer getId() {
         return id;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCalories() {
+        return calories;
+    }
+
+    public boolean isExcess() {
+        return excess;
     }
 
     public LocalDateTime getDateTime() {
