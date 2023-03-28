@@ -75,7 +75,6 @@ public class MealServiceTest {
     }
 
     @Test
-    @Ignore
     public void update() {
         Meal updated = getUpdated();
         mealService.update(updated, USER_ID);
