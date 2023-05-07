@@ -2,7 +2,9 @@ package ru.javawebinar.topjava.to;
 
 import ru.javawebinar.topjava.model.AbstractBaseEntity;
 
+import java.beans.ConstructorProperties;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class MealTo extends AbstractBaseEntity {
     private final LocalDateTime dateTime;
@@ -10,6 +12,7 @@ public class MealTo extends AbstractBaseEntity {
     private final int calories;
     private boolean excess;
 
+    @ConstructorProperties({"id", "dateTime", "description", "calories", "excess"})
     public MealTo(Integer id, LocalDateTime dateTime, String description, int calories, boolean excess) {
         super(id);
         this.dateTime = dateTime;
@@ -38,6 +41,23 @@ public class MealTo extends AbstractBaseEntity {
         return excess;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MealTo mealTo = (MealTo) o;
+        return calories == mealTo.calories &&
+                excess == mealTo.excess &&
+                Objects.equals(id, mealTo.id) &&
+                Objects.equals(dateTime, mealTo.dateTime) &&
+                Objects.equals(description, mealTo.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, dateTime, description, calories, excess);
+    }
 
     @Override
     public String toString() {
