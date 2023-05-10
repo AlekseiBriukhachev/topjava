@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.to;
 
 import ru.javawebinar.topjava.model.AbstractBaseEntity;
 
+import java.beans.ConstructorProperties;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -11,6 +12,7 @@ public class MealTo extends AbstractBaseEntity {
     private final int calories;
     private boolean excess;
 
+    @ConstructorProperties({"id", "dateTime", "description", "calories", "excess"})
     public MealTo(Integer id, LocalDateTime dateTime, String description, int calories, boolean excess) {
         super(id);
         this.dateTime = dateTime;
